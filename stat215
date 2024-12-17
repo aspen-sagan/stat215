@@ -1,0 +1,46 @@
+#set working directory to h drive
+setwd("H:/sta215")
+library("haven")
+library("ggplot2")
+raw_data <- read.csv("data.csv")
+data <- na.omit(raw_data)
+#table 1
+table (data$"instruments")
+table (data$intended_reaction)
+#table 2 contingency table/ crosstab (chi squared)
+data$any_award <- ifelse(data$awards_won>0, 1, 0)
+table(data$music_video_4, data$any_award)
+chisq.test(data$music_video_4, data$any_award)
+#Figure 1box plot ANOVA
+ggplot(data, aes(x = as.factor(any_award), y = intended_reaction)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Award and Intended Reaction",
+       x = "Simplicity",
+       y = "Intended Reaction") +
+  theme_minimal()
+#ANOVA
+ANOVA <- aov(intended_reaction~any_award,data=data)
+summary(ANOVA)
+#figure 2SCatterplot
+linear_plot <- plot(data$intended_reaction, data$monthly_listeners)
+print(linear_plot)
+
+# add x line and y line for means
+meany <- mean(data$monthly_listeners)
+meanx <- mean(data$intended_reaction)
+
+abline(v = meanx, col = "black")
+abline(h = meany, col = "black")
+
+linear_relationship <- lm(data$monthly_listeners ~ intended_reaction, data = data)
+summary(linear_relationship)
+
+# Add the linear regression line to the scatter plot
+# NOTE: double check the scatter plot is currently in your utilities window!
+abline(linear_relationship, col = "red")
+###########################################
+# figure 3Residual plot
+plot(data$intended_reaction, residuals(linear_relationship))
+
+# Add a horizontal line at zero to indicate the baseline
+abline(h = 0, col = "red")
